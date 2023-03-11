@@ -12,8 +12,8 @@
 #define    BOOT_TIME      10
 
 #define I2C_MASTER_NUM          I2C_NUM_0 // I2C_NUM_1
-#define I2C_MASTER_SCL_IO       22 // 27
-#define I2C_MASTER_SDA_IO       23 //26
+#define I2C_MASTER_SCL_IO       21 // 27
+#define I2C_MASTER_SDA_IO       22 //26
 #define I2C_MASTER_FREQ_HZ      100000
 
 #define SENSOR_BUS I2C_MASTER_NUM
@@ -72,7 +72,7 @@ void app_main(void)
 	  /* Initialize mems driver interface */
 	  dev_ctx.write_reg = platform_write;
 	  dev_ctx.read_reg = platform_read;
-	  dev_ctx.handle = SENSOR_BUS;
+	  dev_ctx.handle = I2C_NUM_0;
 	  /* Wait sensor boot time */
 	  platform_delay(BOOT_TIME);
 	  /* Check device ID */
@@ -148,7 +148,7 @@ static int32_t platform_write(i2c_port_t handle, uint8_t reg, const uint8_t *buf
 {
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);  // Start bit
-    i2c_master_write_byte(cmd, (uint8_t) (LSM6DSO_I2C_ADD_L <<1 ) | WRITE_BIT, ACK_CHECK_EN); //slave_addr + wr_bit + ack
+    i2c_master_write_byte(cmd, (uint8_t) (LSM6DSO_I2C_ADD_H <<1 ) | WRITE_BIT, ACK_CHECK_EN); //slave_addr + wr_bit + ack
     i2c_master_write_byte(cmd, reg, ACK_CHECK_EN); //  write 1 byte (register address) + ack
     i2c_master_write(cmd, bufp, len, ACK_CHECK_EN); // write n bytes + ack
     i2c_master_stop(cmd); //Stop
@@ -178,11 +178,11 @@ static int32_t platform_read(i2c_port_t handle, uint8_t reg, uint8_t *bufp,
 	    }
 	    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
 	    i2c_master_start(cmd);
-	    i2c_master_write_byte(cmd, (uint8_t) (LSM6DSO_I2C_ADD_L <<1) | I2C_MASTER_WRITE, ACK_CHECK_EN);
+	    i2c_master_write_byte(cmd, (uint8_t) (LSM6DSO_I2C_ADD_H <<1) | I2C_MASTER_WRITE, ACK_CHECK_EN);
 	    i2c_master_write_byte(cmd, reg, ACK_CHECK_EN);
 
 	    i2c_master_start(cmd);
-	    i2c_master_write_byte(cmd, (uint8_t) (LSM6DSO_I2C_ADD_L <<1 ) | I2C_MASTER_READ, ACK_CHECK_EN);
+	    i2c_master_write_byte(cmd, (uint8_t) (LSM6DSO_I2C_ADD_H <<1 ) | I2C_MASTER_READ, ACK_CHECK_EN);
 	    if (len > 1) {
 	        i2c_master_read(cmd, bufp, len - 1, ACK_VAL); // read len-1 bytes + Ack
 	    }
